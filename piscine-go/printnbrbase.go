@@ -1,62 +1,55 @@
 package piscine
 
-import (
-	"github.com/01-edu/z01"
-)
+import "github.com/01-edu/z01"
 
-// actual func, if base is invalid, prints "NV".
 func PrintNbrBase(nbr int, base string) {
-	if !isValidBase(base) {
-		printStr("NV")
+	if len(base) < 2 || contains(base, '+') || contains(base, '-') || !isUnique(base) {
+		printStr("NV") // Base is invalid
 		return
 	}
-
 	if nbr < 0 {
-		z01.PrintRune('-')
-		convertAndPrint(-nbr, base)
-	} else {
-		convertAndPrint(nbr, base)
+		z01.PrintRune('-') // Handle negative numbers
+		nbr = -nbr
 	}
+	convertAndPrint(nbr, base) // Convert and print the number in the given base
 }
 
-// checks if base is valid according to the given rules.
-func isValidBase(base string) bool {
-	if len(base) < 2 || contains(base, '+') || contains(base, '-') {
-		return false
-	}
-
-	for i := range base {
-		for j := i + 1; j < len(base); j++ {
-			if base[i] == base[j] {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
-// checks if string s contains the character char.
 func contains(s string, char rune) bool {
 	for _, c := range s {
 		if c == char {
-			return true
+			return true // Character found
 		}
 	}
-	return false
+	return false // Character not found
 }
 
-// convertAndPrint converts the number to the base and prints it, using recursion.
-func convertAndPrint(n int, base string) {
-	if n >= len(base) {
-		convertAndPrint(n/len(base), base)
+func isUnique(s string) bool {
+	for i, c := range s {
+		if contains(s[i+1:], c) {
+			return false // Duplicate character found
+		}
 	}
-	z01.PrintRune(rune(base[n%len(base)]))
+	return true
 }
 
-// printStr prints a string, character by character.
+func convertAndPrint(n int, base string) {
+	baseLen := len(base)
+	if n < 0 {
+		if n == -9223372036854775808 {
+			convertAndPrint(n/-baseLen, base) // Adjust n here to avoid the negative index
+			z01.PrintRune(rune(base[(-n-1)%baseLen+1]))
+			return
+		}
+		n = -n // Make n positive if it's negative and not the edge case
+	}
+	if n >= baseLen {
+		convertAndPrint(n/baseLen, base) // Recursive call for each digit
+	}
+	z01.PrintRune(rune(base[n%baseLen])) // Print the character for the current digit
+}
+
 func printStr(s string) {
 	for _, c := range s {
-		z01.PrintRune(c)
+		z01.PrintRune(c) // Print each character
 	}
 }
